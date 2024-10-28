@@ -1,0 +1,45 @@
+body {
+   margin: 0;
+   padding: 0;
+   background-color: #161616;
+}
+
+.navbar {
+   width: 80%;
+   border-radius: 50px;
+   border: 1px solid rgba(128, 128, 128, 0.2);
+   background-color: #1e1e1e;
+   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.162);
+}
+
+.control-panel {
+   width: 210px;
+   height: 70px;
+   border-radius: 50px;
+   backdrop-filter: blur(10px);
+   -webkit-backdrop-filter: blur(10px);
+   border: 1px solid rgba(128, 128, 128, 0.2);
+   background-color: #1e1e1e;
+   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.162);
+}
+
+.circle {
+   width: 40px;
+   height: 40px;
+   border-radius: 50%;
+   cursor: pointer;
+}
+
+.two-screens {
+   height: 72vh;
+   width: 100%;
+}
+
+.screen {
+   width: 50%;
+   height: 100%;
+   border-radius: 10px;
+   border: 1px solid rgba(128, 128, 128, 0.2);
+   background-color: #1e1e1e;
+   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.162);
+}
