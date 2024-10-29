@@ -15,7 +15,7 @@ const App = () => {
         <Route path="/codemode" element={<CodeRoom />} />
         <Route path="/" element={<HomePage />} />
       </Routes>
-      <Toaster expand={false} position="top-center" toastOptions={{ style: { backgroundColor: "#161616", color: "white", border: "none" } }} />
+      <Toaster expand={false} position="top-center" duration={1500} toastOptions={{ style: { backgroundColor: "#161616", color: "white", border: "none" } }} />
     </BrowserRouter>
   )
 

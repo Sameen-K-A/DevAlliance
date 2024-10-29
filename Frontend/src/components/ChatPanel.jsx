@@ -44,7 +44,7 @@ const ChatPanel = () => {
    return (
       <div className="chat-panel position-fixed end-0 bottom-0 m-3 text-light rounded">
          <div className="chat-heading d-flex justify-content-between align-items-center p-2">
-            <span className="fw-bold">Chat</span>
+            <span className="fw-bold ms-2">Chat</span>
             <button className="text-light p-0 btn" onClick={() => setIsHistoryVisible(!isHistoryVisible)}>
                {isHistoryVisible ? <IoMdClose size={20} /> : <FaAngleUp size={20} />}
             </button>

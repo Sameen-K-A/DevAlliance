@@ -1,13 +1,58 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { languages } from "../constants/languages";
 import { Button } from '@mui/material';
 import SkeletonUI from './SkeletonUI';
 import axios from "axios";
+import { useSocket } from '../contextAPI/Socket';
+import { useLocation } from 'react-router-dom';
 
 const OutputScreen = ({ enteredCode, language }) => {
    const [isLoading, setIsLoading] = useState(false);
    const [output, setOutput] = useState("Click 'RUN' button to execute your code.");
    const [error, setError] = useState('');
+   const io = useSocket();
+   const [roomId, setRoomId] = useState("");
+   const location = useLocation();
+
+   useEffect(() => {
+      if (io) {
+         io.emit("OutputUpdation", { output, roomId })
+      }
+   }, [output]);
+
+   useEffect(() => {
+      if (io) {
+         io.emit("ErrorUpdation", { error, roomId })
+      }
+   }, [error]);
+
+   useEffect(() => {
+      if (location.state?.roomId) {
+         setRoomId(location.state.roomId);
+      };
+      if (io) {
+         io.on("UpdatedOutput", (output) => {
+            setOutput(output);
+         });
+         io.on("UpdatedError", (error) => {
+            setError(error);
+         });
+
+         //! join into this room update current output and error
+         io.on("roomData", (roomData) => {
+            setOutput(roomData.output);
+            setError(roomData.error);
+         });
+      };
+
+      return () => {
+         if (io) {
+            io.off("UpdatedOutput");
+            io.off("UpdatedError");
+            io.off("roomData");
+         };
+      };
+   }, [])
 
    const handleRunCode = async () => {
       try {

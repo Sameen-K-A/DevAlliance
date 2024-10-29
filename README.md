@@ -24,12 +24,13 @@ DevAlliance emphasizes the power of teamwork in software development, allowing m
 
 ### Day 02 - Backend and Real-Time Communication
 
-**New Progress**:  
+**New Progress**:
 
 - **Backend Setup with Express Server**: Set up an Express.js server to manage backend functionality, including room creation, joining, and managing user sessions.
 - **Socket.io Integration**: Implemented Socket.io for real-time communication, allowing seamless connections and instant updates among users in the same room. This enables live code updates, real-time chat, and collaborative interactions.
 - **Room Management**: Developed room creation and joining functionalities to organize collaborative sessions easily, allowing users to invite up to 5 members to each room.
 - **Chat Feature with Emoji Support**: Created an in-room chat feature to facilitate smooth communication among participants. Integrated `emoji-picker-react` for emoji selection, enhancing expressiveness in messages.
+- **Real-Time Code Updates with Output and Error Management**: Completed the functionality to synchronize code, output, and error handling in real-time for all members within a room. Each user sees immediate updates to the code and the corresponding output or error messages, ensuring that the entire team is on the same page during development.
 
 ---
 
