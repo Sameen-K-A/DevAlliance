@@ -22,8 +22,17 @@ DevAlliance emphasizes the power of teamwork in software development, allowing m
 - **Piston API Integration**: Integrated the Piston API for executing code snippets in various programming languages, allowing for immediate feedback on code execution.
 - **Monaco Editor Implementation**: Incorporated Monaco Editor for an enhanced coding experience, offering features like syntax highlighting, autocompletion, and error detection.
 
+### Day 02 - Backend and Real-Time Communication
+
+**New Progress**:  
+
+- **Backend Setup with Express Server**: Set up an Express.js server to manage backend functionality, including room creation, joining, and managing user sessions.
+- **Socket.io Integration**: Implemented Socket.io for real-time communication, allowing seamless connections and instant updates among users in the same room. This enables live code updates, real-time chat, and collaborative interactions.
+- **Room Management**: Developed room creation and joining functionalities to organize collaborative sessions easily, allowing users to invite up to 5 members to each room.
+- **Chat Feature with Emoji Support**: Created an in-room chat feature to facilitate smooth communication among participants. Integrated `emoji-picker-react` for emoji selection, enhancing expressiveness in messages.
+
 ---
 
-Stay tuned for upcoming updates as i continue to add features and refine the platform!
+Stay tuned for upcoming updates as I continue to add features and refine the platform!
 
 ---
