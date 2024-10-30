@@ -3,6 +3,17 @@ import { Server as SocketServer } from "socket.io";
 let io;
 const activeRooms = {};
 
+const getRoomData = (roomId) => {
+   const roomData = {
+      currentCode: activeRooms[roomId].currentCode || "",
+      output: activeRooms[roomId].output || "Click Run button for execute your code.",
+      error: activeRooms[roomId].error || "",
+      language: activeRooms[roomId].language || "javascript",
+      members: activeRooms[roomId].members || {}
+   };
+   return roomData;
+};
+
 const configSocketIO = (httpServer) => {
    io = new SocketServer(httpServer, {
       cors: {
@@ -28,6 +39,8 @@ const configSocketIO = (httpServer) => {
          activeRooms[roomId].members[socket.id] = true;
          socket.join(roomId);
          socket.emit("roomCreated", roomId);
+         const roomData = getRoomData(roomId);
+         socket.emit("roomData", roomData);
          console.log("Current room status,", activeRooms[roomId]);
       });
 
@@ -35,16 +48,18 @@ const configSocketIO = (httpServer) => {
          if (!activeRooms[roomId]) {
             socket.emit("joinRoomResponse", "Invalid room-id");
          } else {
+
+            //important:=  iam only allow to join 5 user at a time in a room.
+            if (Object.keys(activeRooms[roomId].members).length >= 5) {
+               socket.emit("joinRoomResponse", "Room has reached the maximum number of members.");
+               return;
+            };
+
             activeRooms[roomId].members[socket.id] = true;
             socket.join(roomId);
             socket.emit("joinRoomResponse", "Success");
 
-            const roomData = {
-               currentCode: activeRooms[roomId].currentCode || defaultCode[activeRooms[roomId].language || "javascript"],
-               output: activeRooms[roomId].output || "",
-               error: activeRooms[roomId].error || "",
-               language: activeRooms[roomId].language || "javascript"
-            };
+            const roomData = getRoomData(roomId);
             socket.emit("roomData", roomData);
 
             io.to(roomId).emit("userJoined", socket.id);

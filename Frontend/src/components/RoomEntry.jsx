@@ -35,7 +35,9 @@ const HomePage = () => {
       io.emit("joinRoom", roomId);
       io.once("joinRoomResponse", (response) => {
         if (response === "Invalid room-id") {
-          toast("Invalid Room-ID, Please enter correct Room-ID");
+          toast("Invalid Room-ID, Please enter correct Room-ID.");
+        } else if (response === "Room has reached the maximum number of members.") {
+          toast("Room has reached the maximum number of members.");
         } else {
           navigate("/codemode", { state: { roomId: roomId } });
         }

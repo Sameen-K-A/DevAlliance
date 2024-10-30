@@ -5,7 +5,6 @@ import RoomControlPannel from '../components/ControlPanel';
 import Navbar from '../components/Navbar';
 import { defaultCode } from '../constants/defaultCode';
 import { useSocket } from '../contextAPI/Socket';
-import { toast } from 'sonner';
 import { useLocation } from 'react-router-dom';
 
 const CodeRoom = () => {
@@ -33,12 +32,6 @@ const CodeRoom = () => {
          setRoomId(location.state.roomId);
       }
       if (io) {
-         io.on("userJoined", (userId) => {
-            toast(`${userId} joined into the room`);
-         });
-         io.on("userLeft", (userId) => {
-            toast(`${userId} Left from the room`);
-         });
          io.on("roomData", (roomData) => {
             setEnteredCode(roomData.currentCode);
             setSelectedLanguage(roomData.language);
@@ -54,8 +47,6 @@ const CodeRoom = () => {
             if (roomId) {
                io.emit("LeaveRoom", roomId);
             }
-            io.off("userJoined");
-            io.off("userLeft");
             io.off("UpdatedCode");
             io.off("UpdatedLanguage");
             io.off("roomData");

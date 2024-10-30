@@ -32,8 +32,16 @@ DevAlliance emphasizes the power of teamwork in software development, allowing m
 - **Chat Feature with Emoji Support**: Created an in-room chat feature to facilitate smooth communication among participants. Integrated `emoji-picker-react` for emoji selection, enhancing expressiveness in messages.
 - **Real-Time Code Updates with Output and Error Management**: Completed the functionality to synchronize code, output, and error handling in real-time for all members within a room. Each user sees immediate updates to the code and the corresponding output or error messages, ensuring that the entire team is on the same page during development.
 
+### Day 03 - User Management and Clean-Up Features
+
+**New Progress**:
+
+- **User Listing in Rooms**: Implemented a feature to display a list of users currently in the room, similar to Google Meet. This allows participants to see who is active in the session and enhances collaboration.
+- **Leave Modal**: Developed a modal prompt that appears when a user attempts to leave the room, confirming the action and ensuring that users don’t accidentally exit the session.
+- **Members Listing**: Created a dedicated section to list all members in the room, providing information such as their usernames and status, enhancing the collaborative experience.
+- **Access User System Mic**: Integrated functionality to allow users to access and manage their system microphone settings, promoting effective audio communication during sessions.
+- **Code Clean-Up Functionality**: Implemented a feature for code clean-up, allowing users to format and organize their code within the editor for better readability and maintenance.
+
 ---
 
 Stay tuned for upcoming updates as I continue to add features and refine the platform!
-
----

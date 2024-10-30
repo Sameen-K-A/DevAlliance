@@ -1,6 +1,7 @@
 @font-face {
-   font-family: 'ProximaNova';
-   src: url('../Fonts/ProximaNova.ttf') format('truetype');
+   font-family: 'Exo-Regular';
+   src: url('/fonts/Exo-Regular.ttf') format('truetype');
+   font-weight: normal;
    font-style: normal;
 }
 
@@ -9,7 +10,7 @@ body {
    padding: 0;
    background-color: #161616 !important;
    background: linear-gradient(to left, rgba(59, 59, 59, 0.101) 60%, rgba(0, 0, 0, 1) 100%);
-   font-family: 'ProximaNova', sans-serif;
+   font-family: 'Exo-Regular', sans-serif;
 }
 
 .navbar {
@@ -53,7 +54,7 @@ body {
 }
 
 .code-share {
-   top: -60px;
+   bottom: 80px;
    display: flex;
    justify-content: space-around;
    align-items: center;
@@ -66,17 +67,32 @@ body {
    border-radius: 10px;
 }
 
-.room-leave-modal {
-   top: -60px;
-   text-align: center;
-   width: 210px;
+.members-list {
+   width: auto;
    min-height: 50px;
    border: 1px solid rgba(128, 128, 128, 0.2);
    background-color: #1e1e1e;
    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.162);
-   position: absolute;
+   position: fixed;
+   bottom: 80px;
+   left: 50%;
+   transform: translateX(-50%);
    border-radius: 10px;
-   position: relative;
+   z-index: 1000;
+}
+
+.leave-modal {
+   width: auto;
+   height: auto;
+   border: 1px solid rgba(128, 128, 128, 0.2);
+   background-color: #1e1e1e;
+   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.162);
+   position: fixed;
+   bottom: 80px;
+   left: 50%;
+   transform: translateX(-50%);
+   border-radius: 10px;
+   z-index: 1000;
 }
 
 .homepage-container {
