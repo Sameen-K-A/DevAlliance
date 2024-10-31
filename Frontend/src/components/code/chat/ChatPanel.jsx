@@ -1,31 +1,24 @@
 import { useEffect, useState } from "react";
 import { IoMdClose, IoMdSend } from "react-icons/io";
 import { FaAngleUp } from "react-icons/fa";
-import { useSocket } from "../contextAPI/Socket";
-import { useLocation } from "react-router-dom";
+import { useSocket } from "../../../contextAPI/Socket";
 import ImojiPicker from "./ImojiPicker";
 
-const ChatPanel = () => {
+const ChatPanel = ({ roomId }) => {
    const [messages, setMessages] = useState([]);
    const [isHistoryVisible, setIsHistoryVisible] = useState(false);
    const [enterMessage, setEnterMessage] = useState("");
-   const [roomId, setRoomId] = useState("");
    const io = useSocket();
-   const location = useLocation();
 
    useEffect(() => {
-      if (location.state?.roomId) {
-         setRoomId(location.state.roomId);
-      }
-      const handleReceiveMessage = (messageData) => {
-         setMessages((prevMessages) => [...prevMessages, messageData]);
-      };
       if (io) {
-         io.on("receiveMessage", handleReceiveMessage);
+         io.on("receiveMessage", (messageData) => {
+            setMessages((prevMessages) => [...prevMessages, messageData]);
+         });
       }
       return () => {
          if (io) {
-            io.off("receiveMessage", handleReceiveMessage);
+            io.off("receiveMessage");
          }
       };
    }, []);

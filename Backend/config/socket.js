@@ -4,15 +4,16 @@ let io;
 const activeRooms = {};
 
 const getRoomData = (roomId) => {
-   const roomData = {
-      currentCode: activeRooms[roomId].currentCode || "",
-      output: activeRooms[roomId].output || "Click Run button for execute your code.",
-      error: activeRooms[roomId].error || "",
-      language: activeRooms[roomId].language || "javascript",
-      members: activeRooms[roomId].members || {}
+   return {
+      roomId: roomId,
+      currentCode: activeRooms[roomId]?.currentCode || "",
+      output: activeRooms[roomId]?.output || "Click Run button for execute your code.",
+      error: activeRooms[roomId]?.error || "",
+      language: activeRooms[roomId]?.language || "javascript",
+      members: activeRooms[roomId]?.members || {}
    };
-   return roomData;
 };
+
 
 const configSocketIO = (httpServer) => {
    io = new SocketServer(httpServer, {
@@ -33,38 +34,40 @@ const configSocketIO = (httpServer) => {
             roomId = Math.random().toString(36).substring(2, 12);
          };
          activeRooms[roomId] = {
+            roomId: roomId,
             host: socket.id,
-            members: {}
+            members: {},
+            currentCode: `function greeting(name) {\n\tconsole.log('Hello ' + name + ', Good morning');\n}\n\ngreeting('Sameen K A');`,
+            language: "javascript",
+            output: "Click Run button for execute your code.",
+            error: "",
          };
+
          activeRooms[roomId].members[socket.id] = true;
          socket.join(roomId);
-         socket.emit("roomCreated", roomId);
          const roomData = getRoomData(roomId);
-         socket.emit("roomData", roomData);
+         socket.emit("roomCreated", roomData);
          console.log("Current room status,", activeRooms[roomId]);
       });
 
       socket.on("joinRoom", (roomId) => {
          if (!activeRooms[roomId]) {
             socket.emit("joinRoomResponse", "Invalid room-id");
-         } else {
-
-            //important:=  iam only allow to join 5 user at a time in a room.
-            if (Object.keys(activeRooms[roomId].members).length >= 5) {
-               socket.emit("joinRoomResponse", "Room has reached the maximum number of members.");
-               return;
-            };
-
-            activeRooms[roomId].members[socket.id] = true;
-            socket.join(roomId);
-            socket.emit("joinRoomResponse", "Success");
-
-            const roomData = getRoomData(roomId);
-            socket.emit("roomData", roomData);
-
-            io.to(roomId).emit("userJoined", socket.id);
-            console.log("Current room status,", activeRooms[roomId]);
+            return;
          }
+
+         if (Object.keys(activeRooms[roomId].members).length >= 5) {
+            socket.emit("joinRoomResponse", "Room has reached the maximum number of members.");
+            return;
+         };
+
+         activeRooms[roomId].members[socket.id] = true;
+         socket.join(roomId);
+         const roomData = getRoomData(roomId);
+         socket.emit("joinRoomResponse", roomData);
+         io.to(roomId).emit("userJoined", socket.id);
+         console.log("Current room status,", activeRooms[roomId]);
+
       });
 
       socket.on("LeaveRoom", (roomId) => {

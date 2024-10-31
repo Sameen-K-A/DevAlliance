@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const Navbar = () => {
 
-   const [isLogged, setIsLogged] = useState(false);
+   const [isLogged, setIsLogged] = useState(true);
    useEffect(() => {
       const localData = localStorage.getItem('userIsLogged');
       if (localData) {

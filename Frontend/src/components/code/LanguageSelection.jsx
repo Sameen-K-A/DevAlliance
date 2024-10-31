@@ -1,5 +1,5 @@
 import { Select, MenuItem, FormControl } from '@mui/material';
-import { languages } from '../constants/languages';
+import { languages } from '../../constants/languages';
 
 const LanguageSelection = ({ selectedLanguage, setSelectedLanguage }) => {
    return (

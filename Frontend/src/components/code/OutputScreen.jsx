@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { languages } from "../constants/languages";
+import { languages } from "../../constants/languages";
 import { Button } from '@mui/material';
-import SkeletonUI from './SkeletonUI';
+import SkeletonUI from '../common/SkeletonUI';
 import axios from "axios";
-import { useSocket } from '../contextAPI/Socket';
-import { useLocation } from 'react-router-dom';
+import { useSocket } from '../../contextAPI/Socket';
 
-const OutputScreen = ({ enteredCode, language }) => {
+const OutputScreen = ({ enteredCode, language, roomData, roomId }) => {
    const [isLoading, setIsLoading] = useState(false);
-   const [output, setOutput] = useState("Click 'RUN' button to execute your code.");
-   const [error, setError] = useState('');
+   const [output, setOutput] = useState(roomData.output || "Click 'RUN' to execute your code.");
+   const [error, setError] = useState(roomData.error || '');
    const io = useSocket();
-   const [roomId, setRoomId] = useState("");
-   const location = useLocation();
 
    useEffect(() => {
       if (io) {
@@ -27,29 +24,15 @@ const OutputScreen = ({ enteredCode, language }) => {
    }, [error]);
 
    useEffect(() => {
-      if (location.state?.roomId) {
-         setRoomId(location.state.roomId);
-      };
       if (io) {
-         io.on("UpdatedOutput", (output) => {
-            setOutput(output);
-         });
-         io.on("UpdatedError", (error) => {
-            setError(error);
-         });
-
-         //! join into this room update current output and error
-         io.on("roomData", (roomData) => {
-            setOutput(roomData.output);
-            setError(roomData.error);
-         });
+         io.on("UpdatedOutput", (output) => setOutput(output));
+         io.on("UpdatedError", (error) => setError(error));
       };
 
       return () => {
          if (io) {
             io.off("UpdatedOutput");
             io.off("UpdatedError");
-            io.off("roomData");
          };
       };
    }, [])

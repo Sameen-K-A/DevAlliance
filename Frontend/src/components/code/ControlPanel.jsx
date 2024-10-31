@@ -3,36 +3,25 @@ import { FaUsers } from "react-icons/fa";
 import { IoCopy } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useSocket } from "../contextAPI/Socket";
+import { useNavigate } from "react-router-dom";
+import { useSocket } from "../../contextAPI/Socket";
 import MicControl from "./MicControl";
-import ChatPanel from "./ChatPanel";
+import ChatPanel from "./chat/ChatPanel";
 import { IoMdShare } from "react-icons/io";
 
-const RoomControlPannel = () => {
-   const [roomId, setRoomId] = useState("ROOM_CODE");
-   const [isHost, setIsHost] = useState(false);
+const RoomControlPannel = ({ roomData, roomId, isHost }) => {
    const [showCodeCopyModal, setShowCodeCopyModal] = useState(false);
    const [showRoomMembersModal, setShowRoomMembersModal] = useState(false);
    const [showLeaveModal, setShowLeaveModal] = useState(false);
    const [roomMembers, setRoomMembers] = useState([]);
-   const location = useLocation();
    const io = useSocket();
    const navigate = useNavigate();
 
    useEffect(() => {
-      if (location.state) {
-         setRoomId(location.state.roomId || null);
-         setIsHost(location.state.isHost || false);
-      }
-
+      setRoomMembers(roomData?.members ? Object.keys(roomData.members) : []);
       if (io) {
          io.on("RoomClosed", () => {
             navigate("/", { state: { message: "Room closed" } });
-         });
-         io.on("roomData", (roomData) => {
-            const roomMembers = Object.keys(roomData.members);
-            setRoomMembers(roomMembers);
          });
          io.on("userJoined", (userId) => {
             setRoomMembers((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
@@ -45,12 +34,11 @@ const RoomControlPannel = () => {
 
          return () => {
             io.off("RoomClosed");
-            io.off("roomData");
             io.off("userJoined");
             io.off("userLeft");
          };
       }
-   }, [location.state, io]);
+   }, [io]);
 
    const handleCopy = async () => {
       try {
@@ -133,7 +121,7 @@ const RoomControlPannel = () => {
                </div>
             </div>
          </nav>
-         <ChatPanel />
+         <ChatPanel roomId={roomId} />
       </>
    );
 };

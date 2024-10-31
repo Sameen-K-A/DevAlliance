@@ -1,5 +1,5 @@
-import Navbar from "../components/Navbar"
-import RoomEntry from "../components/RoomEntry"
+import Navbar from "../components/common/Navbar"
+import RoomEntry from "../components/home/RoomEntry"
 
 const HomePage = () => {
    return (

@@ -1,6 +1,6 @@
 import { Button, Form, Stack } from 'react-bootstrap';
 import { FaDoorOpen, FaPlusCircle } from 'react-icons/fa';
-import { useSocket } from "../contextAPI/Socket";
+import { useSocket } from "../../contextAPI/Socket";
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
@@ -22,8 +22,10 @@ const HomePage = () => {
   const createNewRoom = () => {
     if (io) {
       io.emit("createRoom");
-      io.once("roomCreated", (roomId) => {
-        navigate("/codemode", { state: { roomId: roomId, isHost: true } });
+      io.once("roomCreated", (roomData) => {
+        sessionStorage.setItem("roomData", JSON.stringify(roomData));
+        sessionStorage.setItem("isHost", JSON.stringify(true));
+        navigate("/codemode");
       });
     }
   };
@@ -33,13 +35,14 @@ const HomePage = () => {
       toast("Enter your Room-ID");
     } else {
       io.emit("joinRoom", roomId);
-      io.once("joinRoomResponse", (response) => {
-        if (response === "Invalid room-id") {
+      io.once("joinRoomResponse", (roomData) => {
+        if (roomData === "Invalid room-id") {
           toast("Invalid Room-ID, Please enter correct Room-ID.");
-        } else if (response === "Room has reached the maximum number of members.") {
+        } else if (roomData === "Room has reached the maximum number of members.") {
           toast("Room has reached the maximum number of members.");
         } else {
-          navigate("/codemode", { state: { roomId: roomId } });
+          sessionStorage.setItem("roomData", JSON.stringify(roomData));
+          navigate("/codemode");
         }
       });
     }
