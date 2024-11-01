@@ -6,7 +6,6 @@ import Navbar from '../components/common/Navbar';
 import { useSocket } from '../contextAPI/Socket';
 import lodash from 'lodash';
 import { defaultCode } from '../constants/defaultCode';
-import stunServerConfig from '../utils/stunServerConfig';
 
 const CodeRoom = ({ roomData, isHost }) => {
    const [enteredCode, setEnteredCode] = useState(roomData?.currentCode);
@@ -27,33 +26,6 @@ const CodeRoom = ({ roomData, isHost }) => {
    );
 
    useEffect(() => {
-      Object.values(roomData.members).forEach((memberId) => {
-         if (!peerConnections[memberId]) {
-            const userPeerConnection = new RTCPeerConnection(stunServerConfig);
-            setPeerConnections((prevConnections) => ({ ...prevConnections, [memberId]: userPeerConnection, }));
-
-            userPeerConnection.ontrack = (event) => {
-               console.log('Received remote track', event);
-               const [remoteAudioStream] = event.streams;
-               const audioElement = new Audio();
-               audioElement.srcObject = remoteAudioStream;
-               audioElement.play().catch(e => console.error('Audio playback failed:', e));
-            };
-
-            userPeerConnection.onicecandidate = (event) => {
-               console.log('New ICE candidate:', event.candidate);
-               if (event.candidate) {
-                  io.emit('ice-candidate', { candidate: event.candidate, to: memberId });
-               }
-            };
-
-            userPeerConnection.createOffer().then((offer) => {
-               return userPeerConnection.setLocalDescription(offer);
-            }).then(() => {
-               io.emit('offer', { offer: userPeerConnection.localDescription, to: memberId });
-            })
-         };
-      });
 
       if (io && roomId) {
          io.on("UpdatedCode", (newCode) => setEnteredCode(newCode));
@@ -84,8 +56,6 @@ const CodeRoom = ({ roomData, isHost }) => {
             io.off("UpdatedLanguage");
             io.off("settingsUpdated");
             emitCodeUpdate.cancel();
-            Object.values(peerConnections).forEach((peer) => (peer.close()));
-            setPeerConnections({});
          };
       }
    }, []);
@@ -103,20 +73,6 @@ const CodeRoom = ({ roomData, isHost }) => {
          setEnteredCode(defaultCode[selectedLanguage]);
       }
    }, [selectedLanguage, io, roomId]);
-
-   const handleIsAudioTrackIsChanged = (track) => {
-      Object.values(peerConnections).forEach((peer) => {
-         if (track) {
-            peer.addTrack(track);
-         } else {
-            peer.getSenders().forEach((sender) => {
-               if (sender.track?.kind === "audio") {
-                  peer.removeTrack(sender);
-               }
-            })
-         }
-      })
-   };
 
    return (
       <>

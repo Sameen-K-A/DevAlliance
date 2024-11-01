@@ -27,89 +27,15 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
 
          io.on("userJoined", (userId) => {
             setRoomMembers((prev) => (prev.includes(userId) ? prev : [...prev, userId]));
-            const newUserPeerConnection = new RTCPeerConnection(stunServerConfig);
-
-            console.log("new user enter")
-            newUserPeerConnection.createOffer().then((offer) => {
-               console.log("new user offer creating")
-               return newUserPeerConnection.setLocalDescription(offer);
-            }).then(() => {
-               console.log("new user offer emited")
-               io.emit('offer', { offer: newUserPeerConnection.localDescription, to: userId });
-            })
-
-            newUserPeerConnection.ontrack = (event) => {
-               console.log('Received remote track', event);
-               const [remoteAudioStream] = event.streams;
-               const audioElement = new Audio();
-               audioElement.srcObject = remoteAudioStream;
-               audioElement.play().catch(e => console.error('Audio playback failed:', e));
-            };
-
-            newUserPeerConnection.onicecandidate = (event) => {
-               console.log('New ICE candidate:', event.candidate);
-               if (event.candidate) {
-                  io.emit('ice-candidate', { candidate: event.candidate, to: userId });
-               }
-            };
-
-
-            setPeerConnections((prevConnections) => ({ ...prevConnections, [userId]: newUserPeerConnection }));
             toast(`${userId} joined the room`);
          });
 
          io.on("userLeft", (userId) => {
             setRoomMembers((prevMembers) => prevMembers.filter((memberId) => memberId !== userId));
-            setPeerConnections((prevConnections) => {
-               const updatedConnections = { ...prevConnections };
-               if (updatedConnections[userId]) {
-                  updatedConnections[userId].close();
-                  delete updatedConnections[userId];
-               }
-               return updatedConnections;
-            });
-
-            const audioElement = document.querySelector(`audio[data-user="${userId}"]`);
-            if (audioElement) {
-               audioElement.pause();
-               audioElement.srcObject = null;
-            }
-
             toast(`${userId} left the room`);
          });
 
-
-         io.on("ice-candidate", ({ candidate, userId }) => {
-            const peerConnection = peerConnections[userId];
-            if (peerConnection) {
-               peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-            }
-         });
-
-         io.on("offer", ({ offer, from }) => {
-            const peerConnection = peerConnections[from];
-            if (peerConnection) {
-               peerConnection.setRemoteDescription(new RTCSessionDescription(offer)).then(() => {
-                  return peerConnection.createAnswer();
-               }).then((answer) => {
-                  return peerConnection.setLocalDescription(answer);
-               }).then(() => {
-                  io.emit("answer", { answer: peerConnection.localDescription, to: from });
-               });
-            }
-         });
-
-         io.on("answer", ({ answer, from }) => {
-            const peerConnection = peerConnections[from];
-            if (peerConnection) {
-               peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-            }
-         });
-
          return () => {
-            io.off("ice-candidate");
-            io.off("offer");
-            io.off("answer");
             io.off("RoomClosed");
             io.off("userJoined");
             io.off("userLeft");
