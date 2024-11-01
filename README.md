@@ -42,7 +42,9 @@ DevAlliance emphasizes the power of teamwork in software development, allowing m
 
 - **Code Restructure and Optimization**: To fix the issue, I removed duplicate socket listeners from different components, limiting the number of socket calls. I also added a protector component that manages room access. Now, when a user reloads or clicks the back button, they’re removed from the room, similar to Google Meet, which keeps sessions clean.
 
-After restructuring, DevAlliance runs much smoother—definitely a big learning moment.
+- **Room Host Control Permissions**: Implemented a permissions feature that allows only the room host to manage key settings, like enabling members to edit, run, clear, and change the language. This ensures the host has control over the collaborative environment, giving flexibility in managing room interactions and preventing unauthorized changes by participants.
+
+After restructuring and adding host-specific controls, DevAlliance runs much smoother—definitely a big learning moment.
 
 ---
 

@@ -5,7 +5,7 @@ import SkeletonUI from '../common/SkeletonUI';
 import axios from "axios";
 import { useSocket } from '../../contextAPI/Socket';
 
-const OutputScreen = ({ enteredCode, language, roomData, roomId }) => {
+const OutputScreen = ({ enteredCode, language, roomData, roomId, canRunCode, canClearOutput }) => {
    const [isLoading, setIsLoading] = useState(false);
    const [output, setOutput] = useState(roomData.output || "Click 'RUN' to execute your code.");
    const [error, setError] = useState(roomData.error || '');
@@ -65,9 +65,9 @@ const OutputScreen = ({ enteredCode, language, roomData, roomId }) => {
       <div className="screen position-relative">
          <div className="position-absolute top-0 end-0 mt-2 me-2">
             {(output || error) && (
-               <Button variant="outlined" className='me-2' color="error" onClick={clearResult}>Clear</Button>
+               <Button variant="contained" disabled={!canClearOutput} className='me-2' color="error" onClick={clearResult}>Clear</Button>
             )}
-            <Button disabled={isLoading} variant="outlined" color="primary" onClick={handleRunCode} >Run</Button>
+            <Button disabled={isLoading || !canRunCode} variant="contained" color="primary" onClick={handleRunCode} >Run</Button>
          </div>
          <div className="mt-5 px-5">
             {isLoading ? <SkeletonUI /> : <p className="text-muted" style={{ whiteSpace: 'pre-wrap' }}>{output}</p>}

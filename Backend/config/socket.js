@@ -11,10 +11,13 @@ const getRoomData = (roomId, socketID) => {
       output: activeRooms[roomId]?.output || "Click Run button for execute your code.",
       error: activeRooms[roomId]?.error || "",
       language: activeRooms[roomId]?.language || "javascript",
-      members: activeRooms[roomId]?.members || {}
+      members: activeRooms[roomId]?.members || {},
+      canEditCode: activeRooms[roomId]?.canEditCode || false,
+      canChangeLanguage: activeRooms[roomId]?.canChangeLanguage || false,
+      canRunCode: activeRooms[roomId]?.canRunCode || false,
+      canClearOutput: activeRooms[roomId]?.canClearOutput || false,
    };
 };
-
 
 const configSocketIO = (httpServer) => {
    io = new SocketServer(httpServer, {
@@ -42,6 +45,10 @@ const configSocketIO = (httpServer) => {
             language: "javascript",
             output: "Click Run button for execute your code.",
             error: "",
+            canEditCode: false,
+            canChangeLanguage: false,
+            canRunCode: false,
+            canClearOutput: false,
          };
 
          activeRooms[roomId].members[socket.id] = true;
@@ -66,7 +73,7 @@ const configSocketIO = (httpServer) => {
          socket.join(roomId);
          const roomData = getRoomData(roomId, socket.id);
          socket.emit("joinRoomResponse", roomData);
-         io.to(roomId).emit("userJoined", socket.id);
+         socket.broadcast.to(roomId).emit("userJoined", socket.id);
          console.log("Current room status,", activeRooms[roomId]);
 
       });
@@ -84,7 +91,7 @@ const configSocketIO = (httpServer) => {
          } else {
             delete activeRooms[roomId].members[socket.id];
             socket.leave(roomId);
-            io.to(roomId).emit("userLeft", socket.id);
+            socket.broadcast.to(roomId).emit("userLeft", socket.id);
             console.log(`User ${socket.id} left room ${roomId}`);
          }
       });
@@ -97,7 +104,7 @@ const configSocketIO = (httpServer) => {
             return;
          };
          activeRooms[roomId].currentCode = enteredCode;
-         io.to(roomId).emit("UpdatedCode", enteredCode);
+         socket.broadcast.to(roomId).emit("UpdatedCode", enteredCode);
       });
 
       socket.on("OutputUpdation", ({ output, roomId }) => {
@@ -105,7 +112,7 @@ const configSocketIO = (httpServer) => {
             return;
          };
          activeRooms[roomId].output = output;
-         io.to(roomId).emit("UpdatedOutput", output);
+         socket.broadcast.to(roomId).emit("UpdatedOutput", output);
       });
 
       socket.on("ErrorUpdation", ({ error, roomId }) => {
@@ -113,7 +120,7 @@ const configSocketIO = (httpServer) => {
             return;
          };
          activeRooms[roomId].error = error;
-         io.to(roomId).emit("UpdatedError", error);
+         socket.broadcast.to(roomId).emit("UpdatedError", error);
       });
 
       socket.on("LanguageUpdation", ({ language, roomId }) => {
@@ -121,39 +128,22 @@ const configSocketIO = (httpServer) => {
             return;
          };
          activeRooms[roomId].language = language;
-         io.to(roomId).emit("UpdatedLanguage", language);
+         socket.broadcast.to(roomId).emit("UpdatedLanguage", language);
       });
 
       //! ================================== Coding screen updations end ==================================================================
-      //! ================================== Chat management reciever and sender ==========================================================
+      //! ================================== Host room control updation ===================================================================
 
-      socket.on("sendMessage", ({ enterMessage, roomId }) => {
-         const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-         const messageData = {
-            name: socket.id,
-            message: enterMessage,
-            time: currentTime
-         };
-         console.log("Sending message to room:", roomId, messageData);
-         io.to(roomId).emit("receiveMessage", messageData);
+      socket.on("updateSettings", ({ roomId, settingName, value }) => {
+         if (!activeRooms[roomId]) {
+            return;
+         }
+         activeRooms[roomId][settingName] = value;
+         socket.broadcast.to(roomId).emit("settingsUpdated", { settingName, value });
+         console.log(`Room ${roomId}: ${settingName} set to ${value}`);
       });
 
       //! ================================== Chat management end =========================================================================
-      //! ================================== handle webRTC Offer, Answer, ICE-Candidate ==================================================
-
-      socket.on('offer', ({ to, offer }) => {
-         socket.to(to).emit('offer', { offer, userId: socket.id });
-      });
-
-      socket.on('answer', (data) => {
-         socket.to(data.to).emit('answer', { answer: data.answer, userId: socket.id });
-      });
-
-      socket.on('ice-candidate', ({ candidate, to }) => {
-         socket.to(to).emit('ice-candidate', { candidate, userId: socket.id });
-      });
-
-      //! ================================== end handle webRTC Offer, Answer, ICE-Candidate ===============================================
 
       socket.on("disconnect", () => {
          console.log(`User disconnected: ${socket.id}`);

@@ -11,7 +11,15 @@ import stunServerConfig from '../utils/stunServerConfig';
 const CodeRoom = ({ roomData, isHost }) => {
    const [enteredCode, setEnteredCode] = useState(roomData?.currentCode);
    const [selectedLanguage, setSelectedLanguage] = useState(roomData?.language);
+<<<<<<< HEAD
    const [peerConnections, setPeerConnections] = useState({});
+=======
+   const [canEditCode, setCanEditCode] = useState(roomData?.canEditCode);
+   const [canChangeLanguage, setCanChangeLanguage] = useState(roomData?.canChangeLanguage);
+   const [canRunCode, setCanRunCode] = useState(roomData?.canRunCode);
+   const [canClearOutput, setCanClearOutput] = useState(roomData?.canClearOutput);
+
+>>>>>>> backup-branch
    const roomId = roomData?.roomId;
    const io = useSocket();
 
@@ -55,10 +63,30 @@ const CodeRoom = ({ roomData, isHost }) => {
          io.on("UpdatedCode", (newCode) => setEnteredCode(newCode));
          io.on("UpdatedLanguage", (language) => setSelectedLanguage(language));
 
+         io.on("settingsUpdated", ({ settingName, value }) => {
+            switch (settingName) {
+               case "canEditCode":
+                  setCanEditCode(value);
+                  break;
+               case "canChangeLanguage":
+                  setCanChangeLanguage(value);
+                  break;
+               case "canRunCode":
+                  setCanRunCode(value);
+                  break;
+               case "canClearOutput":
+                  setCanClearOutput(value);
+                  break;
+               default:
+                  break;
+            }
+         });
+
          return () => {
             roomId && io.emit("LeaveRoom", roomId);
             io.off("UpdatedCode");
             io.off("UpdatedLanguage");
+            io.off("settingsUpdated");
             emitCodeUpdate.cancel();
             Object.values(peerConnections).forEach((peer) => (peer.close()));
             setPeerConnections({});
@@ -103,21 +131,36 @@ const CodeRoom = ({ roomData, isHost }) => {
                setSelectedLanguage={setSelectedLanguage}
                enteredCode={enteredCode}
                setEnteredCode={setEnteredCode}
+               canEditCode={isHost ? true : (canEditCode ? true : false)}
+               canChangeLanguage={isHost ? true : (canChangeLanguage ? true : false)}
             />
             <OutputScreen
                enteredCode={enteredCode}
                language={selectedLanguage}
                roomData={roomData}
                roomId={roomId}
+               canClearOutput={isHost ? true : (canClearOutput ? true : false)}
+               canRunCode={isHost ? true : (canRunCode ? true : false)}
             />
          </div>
          <RoomControlPannel
             roomData={roomData}
             roomId={roomId}
             isHost={isHost}
+<<<<<<< HEAD
             peerConnections={peerConnections}
             setPeerConnections={setPeerConnections}
             handleIsAudioTrackIsChanged={handleIsAudioTrackIsChanged}
+=======
+            canEditCode={canEditCode}
+            setCanEditCode={setCanEditCode}
+            canChangeLanguage={canChangeLanguage}
+            setCanChangeLanguage={setCanChangeLanguage}
+            canClearOutput={canClearOutput}
+            setCanClearOutput={setCanClearOutput}
+            canRunCode={canRunCode}
+            setCanRunCode={setCanRunCode}
+>>>>>>> backup-branch
          />
       </>
    );
