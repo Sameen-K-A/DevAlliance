@@ -1,5 +1,6 @@
 import { IoMdMic, IoMdMicOff } from "react-icons/io";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const MicControl = () => {
    const [isMicOn, setIsMicOn] = useState(false);
@@ -7,12 +8,12 @@ const MicControl = () => {
 
    const requestMicAccess = async () => {
       try {
-         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true } });
          const track = stream.getAudioTracks()[0];
          setAudioTrack(track);
          setIsMicOn(true);
       } catch (error) {
-         console.error("Error accessing microphone: ", error);
+         toast("Allow the permission for accessing mic.")
       }
    };
 

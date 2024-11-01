@@ -10,7 +10,12 @@ import { defaultCode } from '../constants/defaultCode';
 const CodeRoom = ({ roomData, isHost }) => {
    const [enteredCode, setEnteredCode] = useState(roomData?.currentCode);
    const [selectedLanguage, setSelectedLanguage] = useState(roomData?.language);
-   const [roomId, setRoomId] = useState(roomData?.roomId);
+   const [canEditCode, setCanEditCode] = useState(roomData?.canEditCode);
+   const [canChangeLanguage, setCanChangeLanguage] = useState(roomData?.canChangeLanguage);
+   const [canRunCode, setCanRunCode] = useState(roomData?.canRunCode);
+   const [canClearOutput, setCanClearOutput] = useState(roomData?.canClearOutput);
+
+   const roomId = roomData?.roomId;
    const io = useSocket();
 
    const emitCodeUpdate = useCallback(
@@ -25,17 +30,37 @@ const CodeRoom = ({ roomData, isHost }) => {
          io.on("UpdatedCode", (newCode) => setEnteredCode(newCode));
          io.on("UpdatedLanguage", (language) => setSelectedLanguage(language));
 
+         io.on("settingsUpdated", ({ settingName, value }) => {
+            switch (settingName) {
+               case "canEditCode":
+                  setCanEditCode(value);
+                  break;
+               case "canChangeLanguage":
+                  setCanChangeLanguage(value);
+                  break;
+               case "canRunCode":
+                  setCanRunCode(value);
+                  break;
+               case "canClearOutput":
+                  setCanClearOutput(value);
+                  break;
+               default:
+                  break;
+            }
+         });
+
          return () => {
-            if (roomId) io.emit("LeaveRoom", roomId);
+            roomId && io.emit("LeaveRoom", roomId);
             io.off("UpdatedCode");
             io.off("UpdatedLanguage");
+            io.off("settingsUpdated");
             emitCodeUpdate.cancel();
          };
       }
-   }, [io, roomId, emitCodeUpdate]);
+   }, []);
 
    useEffect(() => {
-      if (io && roomId) {
+      if (io && roomId && enteredCode !== roomData.currentCode) {
          emitCodeUpdate(enteredCode);
       }
    }, [enteredCode, io, roomId]);
@@ -57,18 +82,30 @@ const CodeRoom = ({ roomData, isHost }) => {
                setSelectedLanguage={setSelectedLanguage}
                enteredCode={enteredCode}
                setEnteredCode={setEnteredCode}
+               canEditCode={isHost ? true : (canEditCode ? true : false)}
+               canChangeLanguage={isHost ? true : (canChangeLanguage ? true : false)}
             />
             <OutputScreen
                enteredCode={enteredCode}
                language={selectedLanguage}
                roomData={roomData}
                roomId={roomId}
+               canClearOutput={isHost ? true : (canClearOutput ? true : false)}
+               canRunCode={isHost ? true : (canRunCode ? true : false)}
             />
          </div>
          <RoomControlPannel
             roomData={roomData}
             roomId={roomId}
             isHost={isHost}
+            canEditCode={canEditCode}
+            setCanEditCode={setCanEditCode}
+            canChangeLanguage={canChangeLanguage}
+            setCanChangeLanguage={setCanChangeLanguage}
+            canClearOutput={canClearOutput}
+            setCanClearOutput={setCanClearOutput}
+            canRunCode={canRunCode}
+            setCanRunCode={setCanRunCode}
          />
       </>
    );

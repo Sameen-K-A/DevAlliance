@@ -22,7 +22,6 @@ body {
 }
 
 .control-panel {
-   width: 210px;
    height: 70px;
    border-radius: 50px;
    backdrop-filter: blur(10px);
@@ -79,6 +78,18 @@ body {
    transform: translateX(-50%);
    border-radius: 10px;
    z-index: 1000;
+}
+
+.form-check-input {
+   height: 20px;
+   cursor: pointer;
+   box-shadow: none !important;
+   border: 1px solid #ced4da;
+}
+
+.form-check-input:checked {
+   background-color: #34C759;
+   border-color: #34C759;
 }
 
 .leave-modal {
