@@ -143,7 +143,7 @@ const configSocketIO = (httpServer) => {
          console.log(`Room ${roomId}: ${settingName} set to ${value}`);
       });
 
-      //! ================================== Chat management end =========================================================================
+      //! ================================== Host room control updation end ================================================================
 
       socket.on("disconnect", () => {
          console.log(`User disconnected: ${socket.id}`);

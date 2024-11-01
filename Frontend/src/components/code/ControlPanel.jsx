@@ -1,18 +1,20 @@
 import { MdCallEnd } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
-import { IoCopy } from "react-icons/io5";
+import { IoMdSettings, IoMdShare } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../contextAPI/Socket";
 import MicControl from "./MicControl";
 import ChatPanel from "./chat/ChatPanel";
-import { IoMdShare } from "react-icons/io";
+import CodeCopyModal from "./modals/CodeCopyModal";
+import RoomMembersModal from "./modals/RoomMembersModal";
+import LeaveModal from "./modals/LeaveModal";
+import SettingsModal from "./modals/SettingsModal";
 
-const RoomControlPannel = ({ roomData, roomId, isHost }) => {
-   const [showCodeCopyModal, setShowCodeCopyModal] = useState(false);
-   const [showRoomMembersModal, setShowRoomMembersModal] = useState(false);
-   const [showLeaveModal, setShowLeaveModal] = useState(false);
+const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCode, canChangeLanguage, setCanChangeLanguage, canClearOutput, setCanClearOutput, canRunCode, setCanRunCode }) => {
+
+   const [activeModal, setActiveModal] = useState(null);
    const [roomMembers, setRoomMembers] = useState([]);
    const io = useSocket();
    const navigate = useNavigate();
@@ -137,40 +139,27 @@ const RoomControlPannel = ({ roomData, roomId, isHost }) => {
 
    return (
       <>
-         <nav className="navbar fixed-bottom mb-2 mx-auto mt-2 control-panel">
-            {showCodeCopyModal && (
-               <div className="code-share">
-                  <p className="text-light m-0">{roomId}</p>
-                  <IoCopy fill="#c4c4c4" onClick={handleCopy} style={{ cursor: 'pointer' }} />
-               </div>
-            )}
+         <nav className="navbar fixed-bottom mb-2 mx-auto mt-2 control-panel" style={isHost ? { width: "270px" } : { width: "210px" }}>
 
-            {showRoomMembersModal && (
-               <div className="members-list px-3 pt-2">
-                  {roomMembers.map((member, index) => (
-                     <div key={index} className="d-flex align-items-center mb-2">
-                        <div className="circle bg-secondary d-flex align-items-center justify-content-center me-3" style={{ width: '40px', height: '40px' }} />
-                        <p className="text-light m-0" style={{ whiteSpace: 'nowrap' }}>{member}</p>
-                     </div>
-                  ))}
-               </div>
-            )}
-
-            {showLeaveModal && (
-               <div className="leave-modal px-3 py-3">
-                  <h6 className="text-light p-0 m-0 text-center mb-3" style={{ whiteSpace: "nowrap" }}>Are you sure you want to exit the room?</h6>
-                  <p className="text-light text-center">{isHost && "Please note, as the host, leaving will close the room for everyone."}</p>
-                  <div className="d-flex gap-2 justify-content-center align-items-center">
-                     <button className="btn bg-secondary text-light" onClick={() => setShowLeaveModal(false)}>Cancel</button>
-                     <button className="btn bg-danger text-light" onClick={closeRoom}>Leave</button>
-                  </div>
-               </div>
-            )}
+            {activeModal === "codeCopy" && <CodeCopyModal roomId={roomId} handleCopy={handleCopy} />}
+            {activeModal === "roomMembers" && <RoomMembersModal roomMembers={roomMembers} />}
+            {activeModal === "leave" && <LeaveModal isHost={isHost} closeRoom={closeRoom} setShowLeaveModal={() => setActiveModal(null)} />}
+            {activeModal === "settings" && (<SettingsModal
+               canEditCode={canEditCode}
+               setCanEditCode={setCanEditCode}
+               canChangeLanguage={canChangeLanguage}
+               setCanChangeLanguage={setCanChangeLanguage}
+               canRunCode={canRunCode}
+               setCanRunCode={setCanRunCode}
+               canClearOutput={canClearOutput}
+               setCanClearOutput={setCanClearOutput}
+               roomId={roomId}
+            />)}
 
             <div className="container-fluid d-flex align-items-center justify-content-between">
                <div className="d-flex justify-content-center gap-2 mx-auto">
                   <MicControl />
-                  <div className="circle bg-secondary d-flex align-items-center justify-content-center" onClick={toggleCodeCopyModal}>
+                  <div className="circle bg-secondary d-flex align-items-center justify-content-center" onClick={() => openModal("codeCopy")}>
                      <IoMdShare style={{ cursor: "pointer" }} size={22} fill="white" />
                   </div>
                   <div className="circle bg-primary d-flex align-items-center justify-content-center" onClick={() => openModal("roomMembers")}>

@@ -11,15 +11,11 @@ import stunServerConfig from '../utils/stunServerConfig';
 const CodeRoom = ({ roomData, isHost }) => {
    const [enteredCode, setEnteredCode] = useState(roomData?.currentCode);
    const [selectedLanguage, setSelectedLanguage] = useState(roomData?.language);
-<<<<<<< HEAD
-   const [peerConnections, setPeerConnections] = useState({});
-=======
    const [canEditCode, setCanEditCode] = useState(roomData?.canEditCode);
    const [canChangeLanguage, setCanChangeLanguage] = useState(roomData?.canChangeLanguage);
    const [canRunCode, setCanRunCode] = useState(roomData?.canRunCode);
    const [canClearOutput, setCanClearOutput] = useState(roomData?.canClearOutput);
 
->>>>>>> backup-branch
    const roomId = roomData?.roomId;
    const io = useSocket();
 
@@ -147,11 +143,6 @@ const CodeRoom = ({ roomData, isHost }) => {
             roomData={roomData}
             roomId={roomId}
             isHost={isHost}
-<<<<<<< HEAD
-            peerConnections={peerConnections}
-            setPeerConnections={setPeerConnections}
-            handleIsAudioTrackIsChanged={handleIsAudioTrackIsChanged}
-=======
             canEditCode={canEditCode}
             setCanEditCode={setCanEditCode}
             canChangeLanguage={canChangeLanguage}
@@ -160,7 +151,6 @@ const CodeRoom = ({ roomData, isHost }) => {
             setCanClearOutput={setCanClearOutput}
             canRunCode={canRunCode}
             setCanRunCode={setCanRunCode}
->>>>>>> backup-branch
          />
       </>
    );
