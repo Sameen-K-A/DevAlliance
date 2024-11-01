@@ -3,8 +3,9 @@ import { Server as SocketServer } from "socket.io";
 let io;
 const activeRooms = {};
 
-const getRoomData = (roomId) => {
+const getRoomData = (roomId, socketID) => {
    return {
+      socketID: socketID,
       roomId: roomId,
       currentCode: activeRooms[roomId]?.currentCode || "",
       output: activeRooms[roomId]?.output || "Click Run button for execute your code.",
@@ -45,7 +46,7 @@ const configSocketIO = (httpServer) => {
 
          activeRooms[roomId].members[socket.id] = true;
          socket.join(roomId);
-         const roomData = getRoomData(roomId);
+         const roomData = getRoomData(roomId, socket.id);
          socket.emit("roomCreated", roomData);
          console.log("Current room status,", activeRooms[roomId]);
       });
@@ -63,7 +64,7 @@ const configSocketIO = (httpServer) => {
 
          activeRooms[roomId].members[socket.id] = true;
          socket.join(roomId);
-         const roomData = getRoomData(roomId);
+         const roomData = getRoomData(roomId, socket.id);
          socket.emit("joinRoomResponse", roomData);
          io.to(roomId).emit("userJoined", socket.id);
          console.log("Current room status,", activeRooms[roomId]);
@@ -138,6 +139,21 @@ const configSocketIO = (httpServer) => {
       });
 
       //! ================================== Chat management end =========================================================================
+      //! ================================== handle webRTC Offer, Answer, ICE-Candidate ==================================================
+
+      socket.on('offer', ({ to, offer }) => {
+         socket.to(to).emit('offer', { offer, userId: socket.id });
+      });
+
+      socket.on('answer', (data) => {
+         socket.to(data.to).emit('answer', { answer: data.answer, userId: socket.id });
+      });
+
+      socket.on('ice-candidate', ({ candidate, to }) => {
+         socket.to(to).emit('ice-candidate', { candidate, userId: socket.id });
+      });
+
+      //! ================================== end handle webRTC Offer, Answer, ICE-Candidate ===============================================
 
       socket.on("disconnect", () => {
          console.log(`User disconnected: ${socket.id}`);
