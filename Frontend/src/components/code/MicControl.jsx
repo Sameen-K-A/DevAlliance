@@ -2,7 +2,7 @@ import { IoMdMic, IoMdMicOff } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-const MicControl = ({ handleIsAudioTrackIsChanged }) => {
+const MicControl = () => {
    const [isMicOn, setIsMicOn] = useState(false);
    const [audioTrack, setAudioTrack] = useState(null);
 
@@ -12,7 +12,6 @@ const MicControl = ({ handleIsAudioTrackIsChanged }) => {
          const track = stream.getAudioTracks()[0];
          setAudioTrack(track);
          setIsMicOn(true);
-         handleIsAudioTrackIsChanged(track)
       } catch (error) {
          toast("Allow the permission for accessing mic.")
       }
@@ -23,13 +22,11 @@ const MicControl = ({ handleIsAudioTrackIsChanged }) => {
          if (audioTrack) {
             audioTrack.stop();
             setAudioTrack(null);
-            handleIsAudioTrackIsChanged(null)
          }
          setIsMicOn(false);
       } else {
          if (audioTrack) {
             setIsMicOn(true);
-            handleIsAudioTrackIsChanged(audioTrack)
          } else {
             requestMicAccess();
          }

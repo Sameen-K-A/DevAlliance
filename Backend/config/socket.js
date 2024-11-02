@@ -144,6 +144,20 @@ const configSocketIO = (httpServer) => {
       });
 
       //! ================================== Host room control updation end ================================================================
+      //! ================================== Chat message sended to room ===================================================================
+      
+      socket.on("sendMessage", ({ enterMessage, roomId }) => {
+         const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+         const messageData = {
+            name: socket.id,
+            message: enterMessage,
+            time: currentTime
+         };
+         console.log("Sending message to room:", roomId, messageData);
+         io.to(roomId).emit("receiveMessage", messageData);
+      });
+      
+      //! ================================== Chat message control end ===================================================================
 
       socket.on("disconnect", () => {
          console.log(`User disconnected: ${socket.id}`);
