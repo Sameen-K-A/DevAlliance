@@ -46,6 +46,12 @@ DevAlliance emphasizes the power of teamwork in software development, allowing m
 
 After restructuring and adding host-specific controls, DevAlliance runs much smoother—definitely a big learning moment.
 
+### Day 05 - Video and Audio Call Functionalities
+
+- **Video and Audio Calls with Agora SDK**: Integrated Agora SDK to enable video and audio calls in the CodeRoom, providing a more comprehensive communication approach for team members. This feature allows users to have face-to-face conversations, enhancing collaborative sessions and making communication more personal.
+- **WebRTC Integration**: Used WebRTC for handling real-time video and audio streams, ensuring low latency and smooth communication. The addition of Agora and WebRTC enables high-quality, stable video and audio interactions, essential for effective teamwork.
+- **Video Layout Optimization**: Designed a responsive video container with a circular layout for video feeds, ensuring an organized and user-friendly arrangement of video boxes for multiple participants.
+
 ---
 
 Stay tuned for upcoming updates as I continue to add features and refine the platform!

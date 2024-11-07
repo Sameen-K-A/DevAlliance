@@ -15,7 +15,7 @@ const EmojiPickerComponent = ({ onEmojiSelect }) => {
             className="emoji-button btn d-flex align-items-center justify-content-center"
             onClick={() => setShowPicker(showPicker ? false : true)}
          >
-            <BsEmojiSmileFill size={20} />
+            <BsEmojiSmileFill size={20} fill="gold" />
          </button>
          {showPicker && (
             <div className="emoji-picker-container position-absolute bottom-100 start-0 mb-2">

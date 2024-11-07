@@ -1,23 +1,105 @@
 import { MdCallEnd } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
 import { IoMdSettings, IoMdShare } from "react-icons/io";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../../contextAPI/Socket";
 import MicControl from "./MicControl";
+import CameraControl from "./CameraControl";
 import ChatPanel from "./chat/ChatPanel";
 import CodeCopyModal from "./modals/CodeCopyModal";
 import RoomMembersModal from "./modals/RoomMembersModal";
 import LeaveModal from "./modals/LeaveModal";
 import SettingsModal from "./modals/SettingsModal";
+import VideoPanel from "./VideoPanel";
+import AgoraRTC from "agora-rtc-sdk-ng";
 
 const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCode, canChangeLanguage, setCanChangeLanguage, canClearOutput, setCanClearOutput, canRunCode, setCanRunCode }) => {
 
    const [activeModal, setActiveModal] = useState(null);
    const [roomMembers, setRoomMembers] = useState([]);
+   const videoContainerRef = useRef();
+   const [remoteUsers, setRemoteUsers] = useState({});
+   const [isCameraOn, setIsCameraOn] = useState(false);
+   const [isMicOn, setIsMicOn] = useState(false);
    const io = useSocket();
    const navigate = useNavigate();
+   const [localTrack, setLocalTrack] = useState([]);
+
+   useEffect(() => {
+      const uid = String(Math.floor(Math.random() * 10000));
+      const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+
+      async function joinRoom() {
+         await client.join(import.meta.env.VITE_AGORA_APP_ID, roomId, null, uid)
+         client.on("user-published", handleUserPublished);
+         client.on("user-left", handleUserLeft);
+         await joinStream();
+      }
+
+      async function joinStream() {
+         try {
+            const userMedia = await AgoraRTC.createMicrophoneAndCameraTracks({}, {
+               encoderConfig: {
+                  width: { min: 640, ideal: 1920, max: 1920 },
+                  height: { min: 480, ideal: 1080, max: 1080 }
+               }
+            });
+            setIsMicOn(true);
+            setIsCameraOn(true);
+            setLocalTrack(userMedia)
+
+            const videoPlayer = `<div id="video-circle-${uid}">
+                                    <div class="video-square" id="player-${uid}"></div>
+                                 </div>`;
+            videoContainerRef.current?.insertAdjacentHTML("beforeend", videoPlayer);
+            userMedia[1].play(`player-${uid}`);
+            await client.publish(userMedia);
+         } catch (error) {
+            setIsMicOn(false);
+            setIsCameraOn(false);
+            console.error("Error during stream join or user reject the access the mic and camera:", error);
+         }
+      }
+
+      async function handleUserPublished(user, mediaType) {
+         setRemoteUsers((prevUsers) => ({ ...prevUsers, [user.uid]: user }));
+         await client.subscribe(user, mediaType);
+         if (!document.getElementById(`video-circle-${user.uid}`)) {
+            const videoPlayer = `<div id="video-circle-${user.uid}" class="remote-video">
+                                    <div class="video-square" id="player-${user.uid}"></div>
+                                 </div>`;
+            videoContainerRef.current?.insertAdjacentHTML("beforeend", videoPlayer);
+         }
+
+         if (mediaType === "video" && user.videoTrack) {
+            user.videoTrack.play(`player-${user.uid}`);
+         }
+         if (mediaType === "audio" && user.audioTrack) {
+            user.audioTrack.play();
+         }
+      }
+
+      const handleUserLeft = (user) => {
+         setRemoteUsers(prevUsers => {
+            const updatedUsers = { ...prevUsers };
+            delete updatedUsers[user.uid];
+            return updatedUsers;
+         });
+         document.getElementById(`video-circle-${user.uid}`)?.remove();
+      };
+
+      joinRoom();
+
+      return () => {
+         client.leave();
+         client.off("user-published", handleUserPublished);
+         client.off("user-left", handleUserLeft);
+         localTrack.forEach(track => track.close());
+      };
+
+   }, []);
 
    useEffect(() => {
       setRoomMembers(roomData?.members ? Object.keys(roomData.members) : []);
@@ -63,9 +145,38 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
       navigate("/");
    };
 
+   const toggleCamera = async () => {
+      if (localTrack[1]) {
+         if (localTrack[1].muted) {
+            await localTrack[1].setMuted(false);
+            setIsCameraOn(true);
+         } else {
+            await localTrack[1].setMuted(true);
+            setIsCameraOn(false);
+         }
+      } else {
+         toast("Allow your camera access.")
+      }
+   };
+   
+   const toggleMic = async () => {
+      if (localTrack[0]) {
+         if (localTrack[0].muted) {
+            await localTrack[0].setMuted(false);
+            setIsMicOn(true);
+         } else {
+            await localTrack[0].setMuted(true);
+            setIsMicOn(false);
+         }
+      } else {
+         toast("Allow your camera access.")
+      }
+   };
+
    return (
       <>
-         <nav className="navbar fixed-bottom mb-2 mx-auto mt-2 control-panel" style={isHost ? { width: "270px" } : { width: "210px" }}>
+         <VideoPanel videoContainerRef={videoContainerRef} />
+         <nav className="navbar fixed-bottom mb-2 mx-auto mt-2 control-panel" style={isHost ? { width: "320px" } : { width: "260px" }}>
 
             {activeModal === "codeCopy" && <CodeCopyModal roomId={roomId} handleCopy={handleCopy} />}
             {activeModal === "roomMembers" && <RoomMembersModal roomMembers={roomMembers} />}
@@ -84,7 +195,8 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
 
             <div className="container-fluid d-flex align-items-center justify-content-between">
                <div className="d-flex justify-content-center gap-2 mx-auto">
-                  <MicControl />
+                  <CameraControl toggleCamera={toggleCamera} isCameraOn={isCameraOn} />
+                  <MicControl toggleMic={toggleMic} isMicOn={isMicOn} />
                   <div className="circle bg-secondary d-flex align-items-center justify-content-center" onClick={() => openModal("codeCopy")}>
                      <IoMdShare style={{ cursor: "pointer" }} size={22} fill="white" />
                   </div>
