@@ -32,7 +32,7 @@ const configSocketIO = (httpServer) => {
 
       //! ======================= Coding room management Create, Join, Exit ======================================================
 
-      socket.on("createRoom", () => {
+      socket.on("createRoom", ({ name }) => {
          let roomId = Math.random().toString(36).substring(2, 12);
          while (activeRooms[roomId]) {
             roomId = Math.random().toString(36).substring(2, 12);
@@ -51,29 +51,34 @@ const configSocketIO = (httpServer) => {
             canClearOutput: false,
          };
 
-         activeRooms[roomId].members[socket.id] = true;
+         activeRooms[roomId].members[socket.id] = name;
          socket.join(roomId);
          const roomData = getRoomData(roomId, socket.id);
          socket.emit("roomCreated", roomData);
          console.log("Current room status,", activeRooms[roomId]);
       });
 
-      socket.on("joinRoom", (roomId) => {
+      socket.on("joinRoom", ({ roomId, joinUsername }) => {
          if (!activeRooms[roomId]) {
             socket.emit("joinRoomResponse", "Invalid room-id");
             return;
          }
 
-         if (Object.keys(activeRooms[roomId].members).length >= 5) {
+         if (Object.keys(activeRooms[roomId].members).length >= 4) {
             socket.emit("joinRoomResponse", "Room has reached the maximum number of members.");
             return;
          };
 
-         activeRooms[roomId].members[socket.id] = true;
+         if (Object.values(activeRooms[roomId].members).includes(joinUsername)) {
+            socket.emit("joinRoomResponse", "This username already exists in the room. Please choose another name.");
+            return;
+         }
+
+         activeRooms[roomId].members[socket.id] = joinUsername;
          socket.join(roomId);
          const roomData = getRoomData(roomId, socket.id);
          socket.emit("joinRoomResponse", roomData);
-         socket.broadcast.to(roomId).emit("userJoined", socket.id);
+         socket.broadcast.to(roomId).emit("userJoined", joinUsername);
          console.log("Current room status,", activeRooms[roomId]);
 
       });
@@ -83,6 +88,13 @@ const configSocketIO = (httpServer) => {
             console.log(`Room ${roomId} does not exist.`);
             return;
          };
+
+         const username = activeRooms[roomId].members[socket.id];
+         if (!username) {
+            console.log(`User has already left room ${roomId}`);
+            return;
+         }
+
          if (activeRooms[roomId].host === socket.id) {
             io.to(roomId).emit("RoomClosed", roomId);
             delete activeRooms[roomId];
@@ -91,8 +103,8 @@ const configSocketIO = (httpServer) => {
          } else {
             delete activeRooms[roomId].members[socket.id];
             socket.leave(roomId);
-            socket.broadcast.to(roomId).emit("userLeft", socket.id);
-            console.log(`User ${socket.id} left room ${roomId}`);
+            socket.broadcast.to(roomId).emit("userLeft", username);
+            console.log(`User ${username} left room ${roomId}`);
          }
       });
 
@@ -145,7 +157,7 @@ const configSocketIO = (httpServer) => {
 
       //! ================================== Host room control updation end ================================================================
       //! ================================== Chat message sended to room ===================================================================
-      
+
       socket.on("sendMessage", ({ enterMessage, roomId }) => {
          const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
          const messageData = {
@@ -156,7 +168,7 @@ const configSocketIO = (httpServer) => {
          console.log("Sending message to room:", roomId, messageData);
          io.to(roomId).emit("receiveMessage", messageData);
       });
-      
+
       //! ================================== Chat message control end ===================================================================
 
       socket.on("disconnect", () => {
@@ -164,9 +176,10 @@ const configSocketIO = (httpServer) => {
          for (const roomId in activeRooms) {
             const room = activeRooms[roomId];
             if (room.members[socket.id]) {
+               const username = room.members[socket.id];
                delete room.members[socket.id];
-               io.to(roomId).emit("userLeft", socket.id);
-               console.log(`User ${socket.id} removed from room ${roomId} due to disconnection`);
+               io.to(roomId).emit("userLeft", username);
+               console.log(`User ${username} removed from room ${roomId} due to disconnection`);
 
                if (room.host === socket.id) {
                   io.to(roomId).emit("RoomClosed", roomId);

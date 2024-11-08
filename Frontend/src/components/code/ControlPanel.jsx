@@ -3,7 +3,7 @@ import { FaUsers } from "react-icons/fa";
 import { IoMdSettings, IoMdShare } from "react-icons/io";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSocket } from "../../contextAPI/Socket";
 import MicControl from "./MicControl";
 import CameraControl from "./CameraControl";
@@ -20,19 +20,23 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
    const [activeModal, setActiveModal] = useState(null);
    const [roomMembers, setRoomMembers] = useState([]);
    const videoContainerRef = useRef();
-   const [remoteUsers, setRemoteUsers] = useState({});
    const [isCameraOn, setIsCameraOn] = useState(false);
    const [isMicOn, setIsMicOn] = useState(false);
    const io = useSocket();
    const navigate = useNavigate();
    const [localTrack, setLocalTrack] = useState([]);
+   const [isLoading, setIsLoading] = useState(true);
+   const location = useLocation();
 
    useEffect(() => {
-      const uid = String(Math.floor(Math.random() * 10000));
+      const appId = import.meta.env.VITE_AGORA_APP_ID;
+      console.log("Augora my devalliance project app id is ...........................................................", appId)
+      const uid = location.state?.name ? location.state.name : Math.floor(Math.random() * 10000);
       const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+      const remoteUsers = {};
 
       async function joinRoom() {
-         await client.join(import.meta.env.VITE_AGORA_APP_ID, roomId, null, uid)
+         await client.join(appId, roomId, null, uid)
          client.on("user-published", handleUserPublished);
          client.on("user-left", handleUserLeft);
          await joinStream();
@@ -52,6 +56,7 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
 
             const videoPlayer = `<div id="video-circle-${uid}">
                                     <div class="video-square" id="player-${uid}"></div>
+                                    <div class="video-uid">${uid}</div>
                                  </div>`;
             videoContainerRef.current?.insertAdjacentHTML("beforeend", videoPlayer);
             userMedia[1].play(`player-${uid}`);
@@ -60,15 +65,18 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
             setIsMicOn(false);
             setIsCameraOn(false);
             console.error("Error during stream join or user reject the access the mic and camera:", error);
+         } finally {
+            setIsLoading(false);
          }
       }
 
       async function handleUserPublished(user, mediaType) {
-         setRemoteUsers((prevUsers) => ({ ...prevUsers, [user.uid]: user }));
+         remoteUsers[user.uid] = user;
          await client.subscribe(user, mediaType);
          if (!document.getElementById(`video-circle-${user.uid}`)) {
             const videoPlayer = `<div id="video-circle-${user.uid}" class="remote-video">
                                     <div class="video-square" id="player-${user.uid}"></div>
+                                    <div class="video-uid">${user.uid}</div>
                                  </div>`;
             videoContainerRef.current?.insertAdjacentHTML("beforeend", videoPlayer);
          }
@@ -82,11 +90,7 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
       }
 
       const handleUserLeft = (user) => {
-         setRemoteUsers(prevUsers => {
-            const updatedUsers = { ...prevUsers };
-            delete updatedUsers[user.uid];
-            return updatedUsers;
-         });
+         delete remoteUsers[user.uid]
          document.getElementById(`video-circle-${user.uid}`)?.remove();
       };
 
@@ -102,7 +106,7 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
    }, []);
 
    useEffect(() => {
-      setRoomMembers(roomData?.members ? Object.keys(roomData.members) : []);
+      setRoomMembers(roomData?.members ? Object.values(roomData.members) : []);
 
       if (io) {
          io.on("RoomClosed", () => { navigate("/", { state: { message: "Room closed" } }) });
@@ -146,6 +150,10 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
    };
 
    const toggleCamera = async () => {
+      if (isLoading) {
+         toast("Please wait camera accessing on process");
+         return;
+      }
       if (localTrack[1]) {
          if (localTrack[1].muted) {
             await localTrack[1].setMuted(false);
@@ -158,8 +166,12 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
          toast("Allow your camera access.")
       }
    };
-   
+
    const toggleMic = async () => {
+      if (isLoading) {
+         toast("Please wait microphone accessing on process");
+         return;
+      }
       if (localTrack[0]) {
          if (localTrack[0].muted) {
             await localTrack[0].setMuted(false);
@@ -169,7 +181,7 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
             setIsMicOn(false);
          }
       } else {
-         toast("Allow your camera access.")
+         toast("Allow your microphone access.")
       }
    };
 

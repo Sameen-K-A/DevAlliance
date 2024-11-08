@@ -68,7 +68,7 @@ body {
 }
 
 .members-list {
-   width: auto;
+   width: 100%;
    min-height: 50px;
    border: 1px solid rgba(128, 128, 128, 0.2);
    background-color: #1e1e1e;
@@ -105,50 +105,6 @@ body {
    transform: translateX(-50%);
    border-radius: 10px;
    z-index: 1000;
-}
-
-.homepage-container {
-   min-height: 80vh;
-   color: #ffffff;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-}
-
-.homepage-container::before {
-   content: '';
-   position: absolute;
-   inset: 0;
-   background: linear-gradient(to left, rgba(59, 59, 59, 0.101) 60%, rgba(0, 0, 0, 1) 100%);
-   z-index: -1;
-}
-
-.homepage-content {
-   padding: 4rem 2rem;
-   text-align: left;
-   max-width: 600px;
-   position: relative;
-}
-
-.homepage-title {
-   font-weight: 700;
-   margin-bottom: 1rem;
-   color: #ffffff;
-}
-
-.homepage-subtitle {
-   color: #b0bec5;
-   margin-bottom: 2rem;
-}
-
-.room-code-input {
-   border-color: #9e9e9e;
-   transition: border-color 0.3s ease;
-}
-
-.room-code-input:focus {
-   border-color: #1a73e8;
-   box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
 }
 
 .chat-panel {
@@ -265,4 +221,87 @@ textarea.message-input {
    border-radius: 8px;
    overflow: hidden;
    background-color: #333 !important;
+}
+
+.video-uid {
+   color: white;
+   text-align: center;
+   font-size: 0.7rem;
+   margin-top: 5px;
+}
+
+.homepage-container {
+   min-height: 80vh;
+}
+
+.homepage-content {
+   padding: 4rem 2rem;
+   text-align: left;
+   max-width: 800px;
+   position: relative;
+}
+
+.homepage-title {
+   font-weight: 700;
+   color: #006dea;
+}
+
+.homepage-subtitle {
+   color: #b0bec5;
+}
+
+.left-side,
+.right-side {
+   width: 45%;
+}
+
+.side-description {
+   margin-bottom: 1rem;
+   color: #beccd2;
+   font-size: 0.9rem;
+}
+
+.divider-line {
+   width: 0.2px;
+   background-color: rgba(255, 255, 255, 0.284);
+   height: 200px;
+   margin: 0 2rem;
+}
+
+.name-input,
+.room-code-input {
+   background-color: #333;
+   color: #ffffff !important;
+   border: 1px solid #555;
+   font-size: 0.8rem;
+   padding: 10px;
+}
+
+.name-input:focus,
+.room-code-input:focus {
+   background-color: #333;
+   border-color: #1a73e8;
+   box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+}
+
+.name-input::placeholder,
+.room-code-input::placeholder {
+   color: #beccd2d0;
+   opacity: 0.8;
+   font-size: 0.8rem;
+}
+
+@media (max-width: 576px) {
+   .divider-line {
+      display: none;
+   }
+
+   .left-side,
+   .right-side {
+      width: 100%;
+   }
+
+   .create-btn {
+      margin-bottom: 2rem;
+   }
 }

@@ -52,6 +52,14 @@ After restructuring and adding host-specific controls, DevAlliance runs much smo
 - **WebRTC Integration**: Used WebRTC for handling real-time video and audio streams, ensuring low latency and smooth communication. The addition of Agora and WebRTC enables high-quality, stable video and audio interactions, essential for effective teamwork.
 - **Video Layout Optimization**: Designed a responsive video container with a circular layout for video feeds, ensuring an organized and user-friendly arrangement of video boxes for multiple participants.
 
+### Day 06 - User Experience Enhancements and Username Display
+
+- **Homepage Redesign and Join Room Requirement**: Updated the DevAlliance homepage layout for better usability and aesthetics. Introduced a new requirement for users to enter a "Username" before joining any room. This field is now mandatory and replaces the previous default display of socket IDs, allowing users to see each other's usernames, which enhances the collaborative experience.
+
+- **Username Display Under Video Feeds**: Implemented functionality to display usernames under each participant's video feed instead of the random numeric number. This change makes it easier for team members to identify each other during video calls and improves communication clarity.
+
+- **Loading State in RoomControlPanel**: Added an `isLoading` state to the RoomControlPanel component, providing users with a loading indicator when toggling microphone or camera controls. This ensures that users receive immediate feedback when enabling or disabling their mic or camera.
+
 ---
 
 Stay tuned for upcoming updates as I continue to add features and refine the platform!
