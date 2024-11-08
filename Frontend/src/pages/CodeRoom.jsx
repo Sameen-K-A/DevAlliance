@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import CodeScreen from "../components/code/CodeScreen";
 import OutputScreen from '../components/code/OutputScreen';
 import RoomControlPannel from '../components/code/ControlPanel';
-import Navbar from '../components/common/Navbar';
 import { useSocket } from '../contextAPI/Socket';
 import lodash from 'lodash';
 import { defaultCode } from '../constants/defaultCode';
@@ -76,7 +75,6 @@ const CodeRoom = ({ roomData, isHost }) => {
 
    return (
       <>
-         <Navbar />
          <div className="d-flex justify-content-center gap-3 two-screens px-5 mt-4">
             <CodeScreen
                selectedLanguage={selectedLanguage}
