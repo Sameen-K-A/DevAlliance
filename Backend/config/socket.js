@@ -41,7 +41,7 @@ const configSocketIO = (httpServer) => {
             roomId: roomId,
             host: socket.id,
             members: {},
-            currentCode: `function greeting(name) {\n\tconsole.log('Hello ' + name + ', Good morning');\n}\n\ngreeting('Sameen K A');`,
+            currentCode: `function greeting() {\n\tconsole.log('Hey! Start your coding journey and boost your skills. Collaborate with your colleagues for an even better experience!');\n}\n\ngreeting();`,
             language: "javascript",
             output: "Click Run button for execute your code.",
             error: "",

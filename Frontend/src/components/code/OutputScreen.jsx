@@ -69,7 +69,7 @@ const OutputScreen = ({ enteredCode, language, roomData, roomId, canRunCode, can
             )}
             <Button disabled={isLoading || !canRunCode} variant="contained" color="primary" onClick={handleRunCode} >Run</Button>
          </div>
-         <div className="mt-5 px-5">
+         <div className="mt-5 px-5 pt-3">
             {isLoading ? <SkeletonUI /> : <p className="text-muted" style={{ whiteSpace: 'pre-wrap' }}>{output}</p>}
             {error && <p className='text-danger'>{error}</p>}
          </div>

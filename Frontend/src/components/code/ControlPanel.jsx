@@ -30,7 +30,6 @@ const RoomControlPannel = ({ roomData, roomId, isHost, canEditCode, setCanEditCo
 
    useEffect(() => {
       const appId = import.meta.env.VITE_AGORA_APP_ID;
-      console.log("Augora my devalliance project app id is ...........................................................", appId)
       const uid = location.state?.name ? location.state.name : Math.floor(Math.random() * 10000);
       const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
       const remoteUsers = {};

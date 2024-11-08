@@ -9,8 +9,8 @@ const HomePage = () => {
   const io = useSocket();
   const navigate = useNavigate();
   const [roomId, setRoomId] = useState("");
-  const [joinUsername, setJoinUserName] = useState("Abhiraj");
-  const [createUserName, setCreateUserName] = useState("Sameen K A");
+  const [joinUsername, setJoinUserName] = useState("");
+  const [createUserName, setCreateUserName] = useState("");
   const nameRegex = /^[A-Za-z\s]{3,15}$/;
 
   useEffect(() => {
